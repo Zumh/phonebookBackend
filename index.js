@@ -34,13 +34,27 @@ app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
 
+// show the time that the request was received 
+ // how many entries are in the phonebook at the time of processing the request
+
 app.get('/info', (request, response) => {
-    //  show the time that the request was received 
     
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
-    // how many entries are in the phonebook at the time of processing the request
-
     
+})
+
+
+// find the person by id from request
+// if found return person else return 404
+app.get('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    const personFound = persons.find(person => person.id === id)
+    
+    if (personFound) {
+      response.json(personFound)
+    } else {
+      response.status(404).end()
+    }
 })
 
 const PORT = 3001
