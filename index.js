@@ -1,8 +1,12 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 
 const app = express()
+
+
+app.use(cors())
 
 // Creating new tokens
 // stringify the token first
@@ -41,6 +45,11 @@ let persons = [
       "id": 4,
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
+    },
+    { 
+      "id": 5,
+      "name": "John doe", 
+      "number": "12-43-234345"
     }
 ]
 
@@ -101,7 +110,7 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
-// if there is nothing in the body then response with error
+  // if there is nothing in the body then response with error
   if (!body.name || !body.number) {
     return response.status(400).json({ 
       error: 'name or number is missing' 
@@ -111,6 +120,7 @@ app.post('/api/persons', (request, response) => {
       error: 'name must be unique' 
     })
   }
+
  
   const person = {
     name: body.name,
