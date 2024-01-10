@@ -1,7 +1,7 @@
-// const http = require('http')
 const express = require('express')
 const app = express()
 
+// this array is like a data that exist in a server
 let persons = [
     { 
       "id": 1,
@@ -25,18 +25,23 @@ let persons = [
     }
 ]
 
-// const app = http.createServer((request, response) => {
-//   response.writeHead(200, { 'Content-Type': 'application/json' })
-//   response.end(JSON.stringify(persons))
-// })
+app.get('/', (request, response) => {
+    response.send('<h1>Lian Phonebook</h1>')
+})
 
-// app.get('/', (request, response) => {
-//     response.send('<h1>Hello World! </h1>')
-//   })
-  
-  app.get('/api/persons', (request, response) => {
+// response get request with persons data.
+app.get('/api/persons', (request, response) => {
     response.json(persons)
-  })
+})
+
+app.get('/info', (request, response) => {
+    //  show the time that the request was received 
+    
+    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
+    // how many entries are in the phonebook at the time of processing the request
+
+    
+})
 
 const PORT = 3001
 app.listen(PORT)
