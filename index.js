@@ -5,7 +5,7 @@ const cors = require('cors')
 
 const app = express()
 
-
+// cross origin resource sharing
 app.use(cors())
 
 // Creating new tokens
@@ -18,7 +18,6 @@ morgan.token('body', function (req) { return JSON.stringify(req.body) })
 // ":method :url :status :res[content-length] - :response-time ms" tiny config same as these tokens
 // app.use(morgan('tiny')) // predefined format string
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
-
 
 
 // we need to use json parser to object for manupilating data
@@ -134,11 +133,7 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
-
-// morgan.token('type', function (req, res) { return req.headers['content-type'] })
-
-
-
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
