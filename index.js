@@ -1,5 +1,21 @@
 const express = require('express')
+const morgan = require('morgan')
+
+
 const app = express()
+
+// Creating new tokens
+// stringify the token first
+// we make sure morgan stringify the body before express server log using tiny configure.
+morgan.token('body', function (req) { return JSON.stringify(req.body) })
+
+// Format token inside morgan
+// morgan is use before express json parser because we don't need json parser
+// ":method :url :status :res[content-length] - :response-time ms" tiny config same as these tokens
+// app.use(morgan('tiny')) // predefined format string
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+
 
 // we need to use json parser to object for manupilating data
 app.use(express.json())
@@ -95,7 +111,7 @@ app.post('/api/persons', (request, response) => {
       error: 'name must be unique' 
     })
   }
-
+ 
   const person = {
     name: body.name,
     number: body.number,
@@ -107,6 +123,9 @@ app.post('/api/persons', (request, response) => {
 
   response.json(person)
 })
+
+
+// morgan.token('type', function (req, res) { return req.headers['content-type'] })
 
 
 
