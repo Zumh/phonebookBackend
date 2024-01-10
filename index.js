@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 
+// we need to use json parser to object for manupilating data
+app.use(express.json())
+
 // this array is like a data that exist in a server
 let persons = [
     { 
@@ -65,6 +68,46 @@ app.delete('/api/persons/:id', (request, response) => {
   
     response.status(204).end()
 })
+
+
+
+// generate the next id
+const generateId = () => {
+
+// map method get all the id and turn them into array of id
+// ... allow to pass individual number into Math.max method.
+//   const maxId = notes.length > 0
+//     ? Math.max(...notes.map(n => n.id))
+//     : 0
+
+  return  Math.floor(Math.random() * Math.pow(persons.length, 2) )
+}
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+// if there is nothing in the body then response with error
+  if (!body.name || !body.number) {
+    return response.status(400).json({ 
+      error: 'name or number is missing' 
+    })
+  } else if (persons.find(person => person.name === body.name)) {
+    return response.status(400).json({ 
+      error: 'name must be unique' 
+    })
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  }
+
+  // here we create a new persons array and send back to client
+  persons = persons.concat(person)
+
+  response.json(person)
+})
+
 
 
 const PORT = 3001
