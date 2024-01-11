@@ -8,8 +8,6 @@ const app = express()
 const Person = require('./models/person')
 
 
-
-
 // front-end build is included in the backend's root
 app.use(express.static('dist'))
 
@@ -31,34 +29,32 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 // we need to use json parser to object for manupilating data
 app.use(express.json())
 
-// this array is like a data that exist in a server
-// let persons = [
-//     { 
-//       "id": 1,
-//       "name": "Arto Hellas", 
-//       "number": "040-123456"
-//     },
-//     { 
-//       "id": 2,
-//       "name": "Ada Lovelace", 
-//       "number": "39-44-5323523"
-//     },
-//     { 
-//       "id": 3,
-//       "name": "Dan Abramov", 
-//       "number": "12-43-234345"
-//     },
-//     { 
-//       "id": 4,
-//       "name": "Mary Poppendieck", 
-//       "number": "39-23-6423122"
-//     },
-//     { 
-//       "id": 5,
-//       "name": "John doe", 
-//       "number": "12-43-234345"
-//     }
-// ]
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+
+// error handler middle ware
+//  if the error is a CastError exception it will handle otherwise passed it own to Express error handler
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'invalid id' })
+  } 
+
+  next(error)
+}
+
+// load this midlleware the the last
+ap.use(errorHandler)
+
+
 
 app.get('/', (request, response) => {
     response.send('<h1>Lian Phonebook</h1>')
@@ -85,39 +81,48 @@ app.get('/info', (request, response) => {
 // find the person by id from request
 // if found return person else return 404
 app.get('/api/persons/:id', (request, response) => {
-    // const id = Number(request.params.id)
-    // const personFound = persons.find(person => person.id === id)
-    
-    // if (personFound) {
-    //   response.json(personFound)
-    // } else {
-    //   response.status(404).end()
-    // }
 
     Person.findById(request.params.id).then(person => {
-      response.json(person)
+      if (person) {
+        
+        response.json(person)        
+      } else {
+
+        // if a person not found in a phone book then return 404
+        // response.status(404).end()
+        next(unknownEndpoint)
+      }
     })
+    .catch(error => next(error)) // continue to error handler middleware
+})
+
+// make small changes to existing data in mongoDB
+app.put('/api/perons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+
+  // we make new fresh object and added to mongoDB instead of making changes to old one.
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      // reponse back to client with updated person
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error)) // if error occcur for Casterror then execute next middleware error
 })
 
 
 // delete the person by id
 // if manage to delete return 204 else return 404
 app.delete('/api/persons/:id', (request, response) => {
-    // const id = Number(request.params.id)
-    // persons = persons.filter(person => person.id !== id)
-    // response.status(204).end()
+
     Person.findByIdAndDelete(request.params.id).then(person => {
-      response.status(204).end()
+        response.status(204).end()
     }) .catch(error => next(error))
 })
-
-
-
-// generate the next id
-// const generateId = () => {
-
-//   return  Math.floor(Math.random() * Math.pow(persons.length, 2) )
-// }
 
 app.post('/api/persons', (request, response) => {
 
@@ -129,35 +134,18 @@ app.post('/api/persons', (request, response) => {
     })
   }  
   
-  // check if any duplicate name exist in the list before adding new one
-  Person.find({name: body.name}).then(person => {
-    if (person.length > 0) {
-      return response.status(400).json({ 
-        error: 'name must be unique' 
-      })
-    }
-  })
-  /*
-  if (persons.find(person => person.name === body.name)) {
-    return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-  }*/
 
- 
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  
-  //persons = persons.concat(person)
 
   // we are saving it in database and response after mongodb saved requested new data
   // and the express server response with the new person that just added in database
   person.save().then(savePerson => {
     response.json(savePerson)
-  })
+  }).catch(error => next(error))
 })
 
 const PORT = process.env.PORT
