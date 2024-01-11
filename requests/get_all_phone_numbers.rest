@@ -1,4 +1,4 @@
-DELETE http://localhost:3001/api/persons/2
+DELETE http://localhost:3001/api/persons/65a07078f9ef23e8eb75b1b4
 
 ###
 POST http://localhost:3001/api/persons
@@ -8,6 +8,16 @@ Content-Type: application/json
     
     "name": "John Hellas", 
     "number": "043-98765"
+}
+
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{ 
+    
+    "name": "John Hellas", 
+    "number": "043-6767878"
 }
 
 ###
