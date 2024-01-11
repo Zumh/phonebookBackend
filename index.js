@@ -30,31 +30,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.json())
 
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
-
-
-// handler of requests with unknown endpoint
-app.use(unknownEndpoint)
-
-
-// error handler middle ware
-//  if the error is a CastError exception it will handle otherwise passed it own to Express error handler
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'invalid id' })
-  } 
-
-  next(error)
-}
-
-// load this midlleware the the last
-app.use(errorHandler)
-
-
 
 app.get('/', (request, response) => {
     response.send('<h1>Lian Phonebook</h1>')
@@ -80,7 +55,7 @@ app.get('/info', (request, response) => {
 
 // find the person by id from request
 // if found return person else return 404
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
 
     Person.findById(request.params.id).then(person => {
       if (person) {
@@ -89,7 +64,7 @@ app.get('/api/persons/:id', (request, response) => {
       } else {
 
         // if a person not found in a phone book then return 404
-        // response.status(404).end()
+        //response.status(404).end()
         next(unknownEndpoint)
       }
     })
@@ -97,34 +72,36 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 // make small changes to existing data in mongoDB
-app.put('/api/perons/:id', (request, response, next) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
-
   const person = {
     name: body.name,
-    number: body.number,
+    number: body.number
   }
-
   // we make new fresh object and added to mongoDB instead of making changes to old one.
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
       // reponse back to client with updated person
+      
+
       response.json(updatedPerson)
     })
-    .catch(error => next(error)) // if error occcur for Casterror then execute next middleware error
+    .catch(error => {
+      console.log("Error occured", error)
+      next(error)}) // if error occcur for Casterror then execute next middleware error
 })
 
 
 // delete the person by id
 // if manage to delete return 204 else return 404
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
 
     Person.findByIdAndDelete(request.params.id).then(person => {
         response.status(204).end()
     }) .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
 
   const body = request.body
   // if there is nothing in the body then response with error
@@ -147,6 +124,32 @@ app.post('/api/persons', (request, response) => {
     response.json(savePerson)
   }).catch(error => next(error))
 })
+
+
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+
+// error handler middle ware
+//  if the error is a CastError exception it will handle otherwise passed it own to Express error handler
+const errorHandler = (error, request, response, next) => {
+  console.error("Error message", error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'invalid id' })
+  } 
+
+  next(error)
+}
+
+// load this midlleware the the last
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 //const PORT = process.env.PORT || 3001 // we need this for only when dotenv is not install in npm
