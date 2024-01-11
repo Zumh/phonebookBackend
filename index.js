@@ -5,6 +5,9 @@ const cors = require('cors')
 
 const app = express()
 
+// front-end build is included in the backend's root
+app.use(express.static('dist'))
+
 // cross origin resource sharing
 app.use(cors())
 
