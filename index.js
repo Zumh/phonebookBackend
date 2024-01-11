@@ -101,16 +101,11 @@ app.delete('/api/persons/:id', (request, response) => {
 // generate the next id
 const generateId = () => {
 
-// map method get all the id and turn them into array of id
-// ... allow to pass individual number into Math.max method.
-//   const maxId = notes.length > 0
-//     ? Math.max(...notes.map(n => n.id))
-//     : 0
-
   return  Math.floor(Math.random() * Math.pow(persons.length, 2) )
 }
 
 app.post('/api/persons', (request, response) => {
+
   const body = request.body
   // if there is nothing in the body then response with error
   if (!body.name || !body.number) {
