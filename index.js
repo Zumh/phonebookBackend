@@ -1,9 +1,14 @@
+
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
-
 const app = express()
+const Person = require('./models/person')
+
+
+
 
 // front-end build is included in the backend's root
 app.use(express.static('dist'))
@@ -27,33 +32,33 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.json())
 
 // this array is like a data that exist in a server
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    },
-    { 
-      "id": 5,
-      "name": "John doe", 
-      "number": "12-43-234345"
-    }
-]
+// let persons = [
+//     { 
+//       "id": 1,
+//       "name": "Arto Hellas", 
+//       "number": "040-123456"
+//     },
+//     { 
+//       "id": 2,
+//       "name": "Ada Lovelace", 
+//       "number": "39-44-5323523"
+//     },
+//     { 
+//       "id": 3,
+//       "name": "Dan Abramov", 
+//       "number": "12-43-234345"
+//     },
+//     { 
+//       "id": 4,
+//       "name": "Mary Poppendieck", 
+//       "number": "39-23-6423122"
+//     },
+//     { 
+//       "id": 5,
+//       "name": "John doe", 
+//       "number": "12-43-234345"
+//     }
+// ]
 
 app.get('/', (request, response) => {
     response.send('<h1>Lian Phonebook</h1>')
@@ -61,7 +66,9 @@ app.get('/', (request, response) => {
 
 // response get request with persons data.
 app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
     response.json(persons)
+  })  
 })
 
 // show the time that the request was received 
@@ -131,7 +138,8 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
+//const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
