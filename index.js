@@ -52,7 +52,7 @@ const errorHandler = (error, request, response, next) => {
 }
 
 // load this midlleware the the last
-ap.use(errorHandler)
+app.use(errorHandler)
 
 
 
