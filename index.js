@@ -115,10 +115,10 @@ app.delete('/api/persons/:id', (request, response) => {
 
 
 // generate the next id
-const generateId = () => {
+// const generateId = () => {
 
-  return  Math.floor(Math.random() * Math.pow(persons.length, 2) )
-}
+//   return  Math.floor(Math.random() * Math.pow(persons.length, 2) )
+// }
 
 app.post('/api/persons', (request, response) => {
 
@@ -149,7 +149,6 @@ app.post('/api/persons', (request, response) => {
   const person = new Person({
     name: body.name,
     number: body.number,
-    id: generateId(),
   })
 
   
