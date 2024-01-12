@@ -32,24 +32,24 @@ app.use(express.json())
 
 
 app.get('/', (request, response) => {
-    response.send('<h1>Lian Phonebook</h1>')
+  response.send('<h1>Lian Phonebook</h1>')
 })
 
 // response get request with persons data.
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
-  })  
+  })
 })
 
-// show the time that the request was received 
- // how many entries are in the phonebook at the time of processing the request
+// show the time that the request was received
+// how many entries are in the phonebook at the time of processing the request
 
 app.get('/info', (request, response) => {
   Person.find({}).then(persons => {
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
   })
- 
+
 })
 
 
@@ -57,17 +57,17 @@ app.get('/info', (request, response) => {
 // if found return person else return 404
 app.get('/api/persons/:id', (request, response, next) => {
 
-    Person.findById(request.params.id).then(person => {
-      if (person) {
-        
-        response.json(person)        
-      } else {
+  Person.findById(request.params.id).then(person => {
+    if (person) {
 
-        // if a person not found in a phone book then return 404
-        //response.status(404).end()
-        next(unknownEndpoint)
-      }
-    })
+      response.json(person)
+    } else {
+
+      // if a person not found in a phone book then return 404
+      //response.status(404).end()
+      next(unknownEndpoint)
+    }
+  })
     .catch(error => next(error)) // continue to error handler middleware
 })
 
@@ -82,12 +82,12 @@ app.put('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
     .then(updatedPerson => {
       // reponse back to client with updated person
-      
+
 
       response.json(updatedPerson)
     })
     .catch(error => {
-      console.log("Error occured", error)
+      console.log('Error occured', error)
 
       next(error)}) // if error occcur for Casterror then execute next middleware error
 })
@@ -97,9 +97,9 @@ app.put('/api/persons/:id', (request, response, next) => {
 // if manage to delete return 204 else return 404
 app.delete('/api/persons/:id', (request, response, next) => {
 
-    Person.findByIdAndDelete(request.params.id).then(person => {
-        response.status(204).end()
-    }) .catch(error => next(error))
+  Person.findByIdAndDelete(request.params.id).then(() => {
+    response.status(204).end()
+  }) .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
@@ -107,11 +107,11 @@ app.post('/api/persons', (request, response, next) => {
   const body = request.body
   // if there is nothing in the body then response with error
   if (!body.name || !body.number) {
-    return response.status(400).json({ 
-      error: 'name or number is missing' 
+    return response.status(400).json({
+      error: 'name or number is missing'
     })
-  }  
-  
+  }
+
 
   const person = new Person({
     name: body.name,
