@@ -79,7 +79,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number
   }
   // we make new fresh object and added to mongoDB instead of making changes to old one.
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
     .then(updatedPerson => {
       // reponse back to client with updated person
       
@@ -88,6 +88,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     })
     .catch(error => {
       console.log("Error occured", error)
+
       next(error)}) // if error occcur for Casterror then execute next middleware error
 })
 
@@ -139,7 +140,6 @@ app.use(unknownEndpoint)
 // error handler middle ware
 //  if the error is a CastError exception it will handle otherwise passed it own to Express error handler
 const errorHandler = (error, request, response, next) => {
-  console.error("Error message", error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'invalid id' })
